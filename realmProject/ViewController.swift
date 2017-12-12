@@ -20,8 +20,10 @@ class ViewController: UIViewController,UITableViewDataSource, UITableViewDelegat
     override func viewDidLoad() {
         super.viewDidLoad()
         
-
-        
+        table.dataSource = self
+        table.delegate = self
+        table.estimatedRowHeight = 130
+        table.rowHeight = UITableViewAutomaticDimension
         self.table.register(UINib(nibName: "RealmTableViewCell", bundle: nil), forCellReuseIdentifier: "Cell")
         
     }
@@ -31,6 +33,7 @@ class ViewController: UIViewController,UITableViewDataSource, UITableViewDelegat
         
         //読み込み
         usersData = Person.loadAll()
+        print(usersData.count)
         
     }
     
@@ -45,7 +48,7 @@ class ViewController: UIViewController,UITableViewDataSource, UITableViewDelegat
         //セルにテキストを挿入
         cell.titleLabel?.text = usersData[indexPath.row].title
         cell.contentsLabel?.text = usersData[indexPath.row].contents
-        cell.imageView?.image = usersData[indexPath.row].image
+        cell.themeImageView?.image = usersData[indexPath.row].image
         return cell
     }
 

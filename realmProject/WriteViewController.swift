@@ -9,20 +9,24 @@
 import UIKit
 
 
-class WriteViewController: UIViewController, UITextFieldDelegate,UIImagePickerControllerDelegate,UINavigationControllerDelegate {
+class WriteViewController: UIViewController, UITextFieldDelegate,UIImagePickerControllerDelegate,UINavigationControllerDelegate,UITextViewDelegate {
 
+    let user = Person.create()
     
     @IBOutlet var titleTextField:UITextField!
     @IBOutlet var contentsTextView:UITextView!
     
     @IBOutlet var imageView:UIImageView!
     var inputImage:UIImage?
+    var resizeImage:UIImage?
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        titleTextField.delegate = self
+        contentsTextView.delegate = self
 
         //textViewに薄文字を表示さえておく(まだわからん)
-        
         
     }
 
@@ -35,8 +39,11 @@ class WriteViewController: UIViewController, UITextFieldDelegate,UIImagePickerCo
     @objc func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : Any]) {
         //選択した画像を代入
         inputImage = (info[UIImagePickerControllerOriginalImage] as? UIImage)!
+        
         //フォトライブラリを閉じる
         self.dismiss(animated: true, completion: nil)
+        resizeImage = resize(image: inputImage!, width: 50, height: 50)
+        imageView.image = resizeImage
         
     }
     
@@ -56,12 +63,10 @@ class WriteViewController: UIViewController, UITextFieldDelegate,UIImagePickerCo
     
     @IBAction func choiceImage(){
         prepareForPhotoLibrary()
-        imageView.image = inputImage
+        
     }
     
     func post(){
-        
-        let user = Person.create()
         //値の代入
         if let tmpTitle = titleTextField.text{
             user.title = tmpTitle
@@ -69,7 +74,7 @@ class WriteViewController: UIViewController, UITextFieldDelegate,UIImagePickerCo
         if let tmpContents = contentsTextView.text{
             user.contents = tmpContents
         }
-        if let tmpImage = inputImage{
+        if let tmpImage = resizeImage{
             user.image = tmpImage
         }
         
@@ -85,6 +90,33 @@ class WriteViewController: UIViewController, UITextFieldDelegate,UIImagePickerCo
     //同じIdだった場合にアップデートの処理を行う
     func update(){
         
+    }
+    
+    func textView(_ textView: UITextView, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool {
+        if text == "\n"{
+            textView.resignFirstResponder()
+            return false
+        }
+        return true
+    }
+    
+    //画像のリサイズを行う
+    func resize(image: UIImage, width: Int, height: Int) -> UIImage {
+        
+        //let imageRef: CGImage = image.cgImage!
+//        var sourceWidth: Int = CGImageGetWidth(imageRef)!
+//        var sourceHeight: Int = CGImageGetHeight(imageRef)!
+        //var sourceWidth: Int = CGImageSource
+        
+        let size: CGSize = CGSize(width: width, height: height)
+        UIGraphicsBeginImageContext(size)
+        
+        let _rect: CGRect = CGRect(x: 0, y: 0, width: size.width, height: size.height)
+        image.draw(in: _rect)
+        
+        let resizeImage = UIGraphicsGetImageFromCurrentImageContext()
+        UIGraphicsEndImageContext()
+        return resizeImage!
     }
     
     
